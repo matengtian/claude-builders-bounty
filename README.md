@@ -1,53 +1,56 @@
-# Claude Builders Bounty 🤖
+# Claude PR Review Agent
 
-> A community bounty board for Claude Code builders.
+A Claude Code sub-agent that reviews GitHub PRs and posts structured Markdown review comments.
 
-Building with Claude Code? Have tasks to delegate?
-Want to get paid for contributing to AI projects?
-You're in the right place.
+## Quick Start
 
----
+### Option A: CLI
 
-## How it works
+```bash
+./claude-review.sh https://github.com/owner/repo/pull/123
+```
 
-**To post a bounty**
-1. Open a GitHub issue with a clear description and acceptance criteria
-2. Comment `/opire create $XXX` in the issue to set the reward
-3. Share the link — contributors will find it
+Requires: `gh` CLI or `curl`, Claude Code with `claude` CLI.
 
-**To claim a bounty**
-1. Browse the open issues below
-2. Comment `/opire try` in the issue you want to work on
-3. Submit a PR — payment is automatic on merge ✅
+### Option B: GitHub Action
 
----
+Copy `pr-review.yml` to `.github/workflows/pr-review.yml` in your repo.
+Copy `review-agent.md` to `.github/claude-agents/pr-review.md`.
 
-## Active Bounties
+The action triggers on PR open/sync/reopen and posts a structured review comment.
 
-| # | Task | Amount | Status |
-|---|------|--------|--------|
-| [#1](../../issues/1) | SKILL: Generate a CHANGELOG from git history | $50 | 🟢 Open |
-| [#2](../../issues/2) | TEMPLATE: CLAUDE.md for a Next.js + SQLite project | $75 | 🟢 Open |
-| [#3](../../issues/3) | HOOK: Block destructive bash commands in Claude Code | $100 | 🟢 Open |
-| [#4](../../issues/4) | AGENT: PR reviewer with structured Markdown output | $150 | 🟢 Open |
-| [#5](../../issues/5) | WORKFLOW: n8n + Claude API — automated weekly dev summary | $200 | 🟢 Open |
+## Agent Setup
 
----
+Place `review-agent.md` in your Claude Code agents directory:
 
-## Rules
+```
+.claude/agents/pr-review.md    # Agent definition
+```
 
-- Tasks must be related to Claude Code or AI tooling
-- Every issue must have clear acceptance criteria before a bounty is activated
-- Payment is handled by [Opire](https://opire.dev) (Stripe)
-- Quality over speed — a solid PR beats a fast one
+Or configure in `.claude/settings.json`:
 
----
+```json
+{
+  "agents": {
+    "pr-review": {
+      "path": ".claude/agents/pr-review.md"
+    }
+  }
+}
+```
 
-## Community
+## Output Format
 
-- 🐦 X: [@ClaudeBounty](https://x.com/ClaudeBounty)
-- 📧 Contact: claudebounty@gmail.com
+Every review includes:
 
----
+- **Summary** — 2-3 sentence overview
+- **Changes Overview** — File-by-file summary
+- **Identified Risks** — Categorized High/Medium/Low with file:line references
+- **Improvement Suggestions** — Actionable, with reasoning
+- **Test Coverage Assessment**
+- **Confidence Score** — Low / Medium / High with justification
 
-*Started by the Claude builder community · March 2026 · MIT License*
+## Tested PRs
+
+### Test 1: [Describe PR]
+[Include sample output]
