@@ -1,56 +1,42 @@
-# Claude PR Review Agent
+# Claude Code Destructive Command Guard
 
-A Claude Code sub-agent that reviews GitHub PRs and posts structured Markdown review comments.
+Pre-tool-use hook that intercepts dangerous Bash commands before execution.
 
-## Quick Start
-
-### Option A: CLI
+## Quick Install
 
 ```bash
-./claude-review.sh https://github.com/owner/repo/pull/123
+cp pre-tool-use ~/.claude/hooks/pre-tool-use
+chmod +x ~/.claude/hooks/pre-tool-use
 ```
 
-Requires: `gh` CLI or `curl`, Claude Code with `claude` CLI.
+Or: `bash install.sh`
 
-### Option B: GitHub Action
+## Blocked Patterns
 
-Copy `pr-review.yml` to `.github/workflows/pr-review.yml` in your repo.
-Copy `review-agent.md` to `.github/claude-agents/pr-review.md`.
+| Pattern | Example |
+|---------|---------|
+| Recursive force delete | `rm -rf /tmp/*` |
+| DROP TABLE/DATABASE | `DROP TABLE users;` |
+| TRUNCATE | `TRUNCATE TABLE logs` |
+| Force push | `git push --force origin main` |
+| DELETE without WHERE | `DELETE FROM users;` |
+| chmod 777 | `chmod 777 /etc/passwd` |
+| Raw disk write | `dd if=/dev/zero of=/dev/sda` |
+| Fork bomb | `:(){ :|:& };:` |
+| Curl/wget pipe to shell | `curl url | bash` |
+| git reset --hard | `git reset --hard HEAD~` |
+| Shutdown/reboot | `shutdown -h now` |
+| mkfs format | `mkfs.ext4 /dev/sda1` |
+| chown -R root | `chown -R root:root /` |
 
-The action triggers on PR open/sync/reopen and posts a structured review comment.
+## Override
 
-## Agent Setup
+Set `CLAUDE_ALLOW_DANGEROUS=1` to bypass the guard for intentional use.
 
-Place `review-agent.md` in your Claude Code agents directory:
+## Logs
 
-```
-.claude/agents/pr-review.md    # Agent definition
-```
-
-Or configure in `.claude/settings.json`:
+Blocked attempts are logged to `~/.claude/hooks/blocked.log`:
 
 ```json
-{
-  "agents": {
-    "pr-review": {
-      "path": ".claude/agents/pr-review.md"
-    }
-  }
-}
+{"timestamp":"2026-05-26T12:00:00Z","command":"rm -rf /","project":"/home/user/project"}
 ```
-
-## Output Format
-
-Every review includes:
-
-- **Summary** — 2-3 sentence overview
-- **Changes Overview** — File-by-file summary
-- **Identified Risks** — Categorized High/Medium/Low with file:line references
-- **Improvement Suggestions** — Actionable, with reasoning
-- **Test Coverage Assessment**
-- **Confidence Score** — Low / Medium / High with justification
-
-## Tested PRs
-
-### Test 1: [Describe PR]
-[Include sample output]
